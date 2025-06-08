@@ -177,13 +177,29 @@ class ShapiService:
 
     def _build_command(self, parameters: Dict[str, Any]) -> List[str]:
         """Build command with parameters."""
-        cmd = [str(self.script_path)]
+        # Ensure script path is absolute and executable
+        script_path = self.script_path.resolve()
+        if not script_path.exists():
+            raise FileNotFoundError(f"Script not found: {script_path}")
+        
+        # Make sure script is executable
+        if not os.access(script_path, os.X_OK):
+            try:
+                script_path.chmod(0o755)  # Make script executable
+            except Exception as e:
+                logger.warning(f"Could not make script executable: {e}")
+        
+        # Build command with parameters
+        cmd = [str(script_path)]
 
         for key, value in parameters.items():
+            if value is None:
+                continue
             if isinstance(value, bool):
                 if value:
                     cmd.append(f"--{key}")
             else:
                 cmd.extend([f"--{key}", str(value)])
 
+        logger.debug(f"Running command: {' '.join(cmd)}")
         return cmd
