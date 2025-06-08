@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "shapi"
-version = "0.2.11"
+version = "0.2.12"
 description = "Transform shell scripts into production-ready APIs with REST, WebRTC, and gRPC support"
 authors = ["Tom Sapletta <info@softreck.dev>"]
 license = "Apache-2.0"

@@ -25,24 +25,59 @@
 - 🌐 **Multi-Protocol**: Support for REST, WebRTC, and gRPC APIs
 - 🧪 **Testing Included**: Generated test suites and Ansible playbooks
 - 📊 **Monitoring**: Built-in health checks and status endpoints
-- 🔧 **Production Ready**: Complete with Makefile, monitoring, and deployment configs
+- 🔧 **Service Management**: Start, stop, and manage multiple services
+- 🚦 **Port Management**: Automatic port conflict resolution
+- 🎯 **Daemon Mode**: Run services in the background
+- 🔄 **Service Discovery**: List and manage running services
 
 ## Quick Start
 
 ### Installation
 
 ```bash
+# Install using pip
 pip install shapi
+
+# Or install from source
+git clone https://github.com/wronai/shapi.git
+cd shapi
+pip install -e .
 ```
 
-### Generate API Service
+### Basic Usage
 
 ```bash
-# Generate complete service structure
+# Serve a script directly
+shapi serve ./hello.sh --port 8000
+
+# Run in the background (daemon mode)
+shapi serve ./hello.sh --port 8000 --daemon
+
+# List running services
+shapi service list
+
+# Stop a running service
+shapi service stop hello  # by name
+shapi service stop 12345  # by PID
+
+# Restart a service
+shapi service restart hello
+```
+
+### Generate Complete Service Structure
+
+```bash
+# Generate complete service structure with Docker and tests
 shapi generate /path/to/your/script.sh --name my-service
 
-# Or serve directly
-shapi serve /path/to/your/script.sh --name my-service --port 8000
+# Navigate to the generated service
+cd my-service
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the service
+python main.py
 ```
 
 ### Generated Structure
@@ -91,6 +126,45 @@ Every generated service includes:
 - `POST /run` - Execute script (sync/async)
 - `GET /status/{task_id}` - Check async task status
 - `GET /docs` - Interactive API documentation
+
+## Service Management
+
+### Managing Multiple Services
+
+```bash
+# Start multiple services on different ports
+shapi serve ./service1.sh --name service1 --port 8000 --daemon
+shapi serve ./service2.sh --name service2 --port 8001 --daemon
+
+# List all running services
+shapi service list
+
+# Output:
+# ┏━━━━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃ Name      ┃ PID    ┃ Port ┃ Status  ┃ Uptime   ┃ Script                          ┃
+# ┡━━━━━━━━━━━╇━━━━━━━━╇━━━━━━╇━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+# │ service1  │ 12345  │ 8000 │ running │ 00:05:32 │ /path/to/service1.sh            │
+# │ service2  │ 12346  │ 8001 │ running │ 00:02:15 │ /path/to/service2.sh            │
+# └───────────┴────────┴──────┴─────────┴──────────┴─────────────────────────────────┘
+
+# Stop a service
+shapi service stop service1
+
+# Force stop a service if it's not responding
+shapi service stop service2 --force
+
+# Restart a service
+shapi service restart service1
+```
+
+### Port Management
+
+```bash
+# Start a service with automatic port conflict resolution
+shapi serve ./service.sh --port 8000 --force
+
+# The --force flag will automatically stop any service using port 8000
+```
 
 ### Example API Request
 

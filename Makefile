@@ -97,6 +97,32 @@ start-dev: check-env  ## Start development server
 	@echo "$(YELLOW)Starting development server...$(RESET)"
 	@$(POETRY) run uvicorn shapi.api:app --reload --port $(DEV_PORT)
 
+##@ Service Management
+
+SERVICE_SCRIPT ?= examples/hello.sh
+SERVICE_NAME ?= $(shell basename $(SERVICE_SCRIPT) .sh)
+SERVICE_PORT ?= 8000
+SERVICE_HOST ?= 0.0.0.0
+
+service-serve:  ## Start a service from a script
+	@echo "$(YELLOW)Starting service from $(SERVICE_SCRIPT)...$(RESET)"
+	@$(POETRY) run shapi serve $(SERVICE_SCRIPT) --name $(SERVICE_NAME) --port $(SERVICE_PORT) --host $(SERVICE_HOST)
+
+service-daemon:  ## Start a service in the background
+	@echo "$(YELLOW)Starting service in the background...$(RESET)"
+	@$(POETRY) run shapi serve $(SERVICE_SCRIPT) --name $(SERVICE_NAME) --port $(SERVICE_PORT) --host $(SERVICE_HOST) --daemon
+
+service-list:  ## List all running services
+	@echo "$(YELLOW)Listing running services...$(RESET)"
+	@$(POETRY) run shapi service list
+
+service-stop:  ## Stop a running service
+	@echo "$(YELLOW)Stopping service $(SERVICE_NAME)...$(RESET)"
+	@$(POETRY) run shapi service stop $(SERVICE_NAME)
+
+service-restart:  ## Restart a service
+	@echo "$(YELLOW)Restarting service $(SERVICE_NAME)...$(RESET)
+	@$(POETRY) run shapi service restart $(SERVICE_NAME)
 
 start-ollama:  ## Start Ollama server (required for local development)
 	@echo "$(YELLOW)Starting Ollama server...$(RESET)
