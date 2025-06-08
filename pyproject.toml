@@ -77,6 +77,20 @@ mkdocs-material = "^9.0.0"
 mkdocstrings = {extras = ["python"], version = "^0.20.0"}
 mkdocs-minify-plugin = "^0.6.0"
 
+[tool.poetry.extras]
+cli = ["rich-click"]
+server = ["fastapi", "uvicorn", "python-multipart"]
+all = [
+    "fastapi",
+    "lxml",
+    "openai",
+    "pypdf",
+    "python-docx",
+    "python-multipart",
+    "rich-click",
+    "uvicorn"
+]
+
 [tool.black]
 line-length = 88
 target-version = ["py39", "py310", "py311", "py312"]
