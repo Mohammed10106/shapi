@@ -154,10 +154,10 @@ monitoring:
 
 ```bash
 # Generate service structure
-shapi generate script.sh --name service-name --output ./output
+shapi generate hello.sh --name service-name --output ./output
 
 # Serve script directly
-shapi serve script.sh --host 0.0.0.0 --port 8000
+shapi serve hello.sh --host 0.0.0.0 --port 8008
 
 # Test generated service
 shapi test ./generated/service-name
