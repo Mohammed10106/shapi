@@ -1,0 +1,7 @@
+include README.md
+include LICENSE
+include requirements.txt
+recursive-include shapi/templates *
+recursive-include shapi *.py
+global-exclude *.pyc
+global-exclude __pycache__
