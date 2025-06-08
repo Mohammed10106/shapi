@@ -48,20 +48,65 @@ pip install -e .
 
 ```bash
 # Serve a script directly
-shapi serve ./hello.sh --port 8000
+shapi serve ./examples/echo.sh --port 8000
 
-# Run in the background (daemon mode)
-shapi serve ./hello.sh --port 8000 --daemon
+# Or run it as a daemon
+shapi serve ./examples/echo.sh --name echo-service --port 8000 --daemon
 
 # List running services
 shapi service list
 
+# Stop a service
+shapi service stop echo-service
+```
+
+### Example Scripts
+
+Shapi comes with several example scripts that demonstrate its capabilities:
+
+1. `ls.sh` - List directory contents
+2. `ps.sh` - Show running processes
+3. `df.sh` - Display disk usage
+4. `free.sh` - Show memory usage
+5. `whoami.sh` - Display current user information
+6. `date.sh` - Show current date/time with formatting
+7. `echo.sh` - Echo back input text
+
+You can run these examples using:
+
+```bash
+# Start all example services (runs on ports 8001-8007)
+make start-examples
+
+# Verify examples are working
+make check-examples
+
+# List running example services
+make list-examples
+
+# Stop all example services
+make stop-examples
+
+# Start a specific example
+make start-example EXAMPLE=ls PORT=8001
+```
+
+### Service Management
+
+Shapi provides a comprehensive service management system:
+
+```bash
+# List all running services
+shapi service list
+
 # Stop a running service
-shapi service stop hello  # by name
-shapi service stop 12345  # by PID
+shapi service stop service-name
 
 # Restart a service
-shapi service restart hello
+shapi service restart service-name
+
+# Force stop if port is in use
+shapi serve ./examples/echo.sh --port 8000 --force
 ```
 
 ### Generate Complete Service Structure

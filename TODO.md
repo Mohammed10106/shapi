@@ -11,10 +11,14 @@
 
 ### Documentation
 - [x] Fix MkDocs build issues
+- [x] Set up theme overrides and partials
 - [ ] Complete API reference documentation
 - [ ] Add usage examples
 - [ ] Document configuration options
 - [ ] Create contribution guidelines
+- [ ] Add search functionality documentation
+- [ ] Document social media integration
+- [ ] Add repository source linking
 
 ## 📦 Medium Priority
 
@@ -47,6 +51,9 @@
 - [ ] Linting (flake8, mypy)
 - [ ] Documentation generation
 - [ ] Dependency management
+- [ ] Add documentation for theme customization
+- [ ] Create documentation templates
+- [ ] Set up documentation versioning
 
 ## 🏗️ Project Setup
 - [ ] Set up virtual environment

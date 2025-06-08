@@ -24,6 +24,7 @@ DOCKER_COMPOSE := docker-compose
 GREEN  := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
 WHITE  := $(shell tput -Txterm setaf 7)
+RED    := $(shell tput -Txterm setaf 1)
 RESET  := $(shell tput -Txterm sgr0)
 
 # Documentation
@@ -97,6 +98,73 @@ start-dev: check-env  ## Start development server
 	@echo "$(YELLOW)Starting development server...$(RESET)"
 	@$(POETRY) run uvicorn shapi.api:app --reload --port $(DEV_PORT)
 
+##@ Examples
+
+# Port range for example services
+EXAMPLE_PORTS := 8001 8002 8003 8004 8005 8006 8007
+
+# Start all example services in the background
+start-examples:
+	@echo "$(YELLOW)Starting all example services...$(RESET)"
+	@for port in $(EXAMPLE_PORTS); do \
+		script=$$(echo "examples/"$$(ls examples/ | grep -v "^_" | grep -v "\." | head -n $$(( ($$port - 8000) )) | tail -n 1)); \
+		if [ -f "$$script" ]; then \
+			make service-daemon SERVICE_SCRIPT=$$script SERVICE_NAME=example-$$(basename $$script .sh) SERVICE_PORT=$$port; \
+		sleep 1; \
+		fi; \
+	done
+
+# Stop all example services
+stop-examples:
+	@echo "$(YELLOW)Stopping all example services...$(RESET)"
+	@for port in $(EXAMPLE_PORTS); do \
+		make service-stop SERVICE_NAME=example-$$(ls examples/ | grep -v "^_" | grep -v "\." | head -n $$(( ($$port - 8000) )) | tail -n 1 | cut -d. -f1); \
+	done
+
+# List all example services
+list-examples:
+	@echo "$(YELLOW)Listing example services...$(RESET)"
+	@$(POETRY) run shapi service list | grep -E "$(shell echo $(EXAMPLE_PORTS) | sed 's/ /|/g')" || true
+
+# Start a specific example
+start-example:
+	@if [ -z "$(EXAMPLE)" ]; then \
+		echo "$(RED)Error: EXAMPLE not specified$(RESET)"; \
+		echo "Usage: make start-example EXAMPLE=<name> [PORT=<port>]"; \
+		exit 1; \
+	fi
+	@if [ ! -f "examples/$(EXAMPLE).sh" ]; then \
+		echo "$(RED)Error: Example $(EXAMPLE).sh not found$(RESET)"; \
+		exit 1; \
+	fi
+	@$(MAKE) service-daemon SERVICE_SCRIPT=examples/$(EXAMPLE).sh SERVICE_NAME=example-$(EXAMPLE) SERVICE_PORT=$(or $(PORT), 8001)
+
+# Stop a specific example
+stop-example:
+	@if [ -z "$(NAME)" ]; then \
+		echo "$(RED)Error: NAME not specified$(RESET)"; \
+		echo "Usage: make stop-example NAME=<service-name>"; \
+		exit 1; \
+	fi
+	@$(MAKE) service-stop SERVICE_NAME=$(NAME)
+
+# Test all examples
+test-examples:  ## Run example tests with pytest
+	@echo "$(YELLOW)Running example tests...$(RESET)"
+	@echo "$(YELLOW)Installing test dependencies...$(RESET)"
+	@$(POETRY) install --with dev
+	@echo "$(YELLOW)Starting example services...$(RESET)"
+	@$(MAKE) start-examples
+	@echo "$(YELLOW)Waiting for services to start...$(RESET)"
+	@sleep 5
+	@echo "$(YELLOW)Running tests...$(RESET)"
+	@$(POETRY) run python -m pytest examples/test_examples.py -v --tb=short || ($(MAKE) stop-examples && exit 1)
+	@$(MAKE) stop-examples
+
+check-examples:  ## Verify example scripts work directly
+	@echo "$(YELLOW)Verifying example scripts...$(RESET)"
+	@$(PYTHON) examples/check_examples.py
+
 ##@ Service Management
 
 SERVICE_SCRIPT ?= examples/hello.sh
@@ -142,13 +210,25 @@ start-docker:  ## Start using Docker
 	@$(DOCKER_COMPOSE) up --build
 
 ##@ Test & Lint
-test:  ## Run tests
-	@echo "$(YELLOW)Running tests...$(RESET)"
-	$(POETRY) run pytest $(TEST_PATH) -v
+test: test-unit test-examples  ## Run all tests (unit + examples)
+
+##@ Testing
+
+test-unit:  ## Run unit tests
+	@echo "$(YELLOW)Running unit tests...$(RESET)"
+	@if [ -d "$(TEST_PATH)" ]; then \
+		$(POETRY) run pytest $(TEST_PATH) -v; \
+	else \
+		echo "$(YELLOW)No tests found in $(TEST_PATH)$(RESET)"; \
+	fi
 
 test-cov:  ## Run tests with coverage
 	@echo "$(YELLOW)Running tests with coverage...$(RESET)"
-	$(POETRY) run pytest --cov=$(SRC_DIR) --cov-report=term-missing --cov-report=html $(TEST_PATH) -v
+	@if [ -d "$(TEST_PATH)" ]; then \
+		$(POETRY) run pytest --cov=$(SRC_DIR) --cov-report=term-missing --cov-report=html $(TEST_PATH) -v; \
+	else \
+		echo "$(YELLOW)No tests found in $(TEST_PATH)$(RESET)"; \
+	fi
 
 lint:  ## Run all linters
 	@echo "$(YELLOW)Running linters...$(RESET)"

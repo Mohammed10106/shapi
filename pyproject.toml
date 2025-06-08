@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "shapi"
-version = "0.2.12"
+version = "0.2.13"
 description = "Transform shell scripts into production-ready APIs with REST, WebRTC, and gRPC support"
 authors = ["Tom Sapletta <info@softreck.dev>"]
 license = "Apache-2.0"
@@ -68,6 +68,8 @@ pytest = "^7.4.3"
 pytest-cov = "^4.1.0"
 pytest-mock = "^3.12.0"
 tox = "^4.11.0"
+pytest-asyncio = "<1.0.0"
+requests = "^2.32.3"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.4.0"
