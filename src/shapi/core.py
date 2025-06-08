@@ -191,15 +191,28 @@ class ShapiService:
         
         # Build command with parameters
         cmd = [str(script_path)]
-
-        for key, value in parameters.items():
-            if value is None:
-                continue
-            if isinstance(value, bool):
-                if value:
-                    cmd.append(f"--{key}")
-            else:
-                cmd.extend([f"--{key}", str(value)])
+        
+        # Special handling for shell script parameters
+        # If there's only one parameter named 'args', pass it directly as positional arguments
+        if len(parameters) == 1 and 'args' in parameters:
+            # Split the args string into a list of arguments
+            import shlex
+            try:
+                cmd.extend(shlex.split(str(parameters['args'])))
+            except Exception as e:
+                logger.warning(f"Error parsing args: {e}")
+                cmd.append(str(parameters['args']))
+        else:
+            # Handle named parameters
+            for key, value in parameters.items():
+                if value is None:
+                    continue
+                if isinstance(value, bool):
+                    if value:
+                        cmd.append(f"--{key}")
+                else:
+                    # For non-boolean values, pass as positional arguments
+                    cmd.append(str(value))
 
         logger.debug(f"Running command: {' '.join(cmd)}")
         return cmd
