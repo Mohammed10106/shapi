@@ -62,21 +62,62 @@ def generate(script_path: str, name: Optional[str], output: str, config: Optiona
 @click.option("--host", "-h", default="0.0.0.0", help="Host to bind to")
 @click.option("--port", "-p", default=8000, help="Port to bind to")
 @click.option("--reload", is_flag=True, help="Enable auto-reload")
-def serve(script_path: str, name: Optional[str], host: str, port: int, reload: bool):
+@click.option("--force", "-f", is_flag=True, help="Force stop any service running on the same port")
+async def serve(script_path: str, name: Optional[str], host: str, port: int, reload: bool, force: bool):
     """Serve a shell script as an API directly."""
+    import asyncio
+    
+    try:
+        script_path_obj = Path(script_path)
+        service_name = name or script_path_obj.stem
 
-    script_path_obj = Path(script_path)
-    service_name = name or script_path_obj.stem
+        # Create service instance with host and port
+        service = ShapiService(script_path, service_name, host=host, port=port)
 
-    service = ShapiService(script_path, service_name)
+        # Check if port is available
+        is_used, pid = service.is_port_in_use(port, host)
+        
+        if is_used:
+            if not force:
+                click.echo(f"❌ Port {port} is already in use by process {pid}")
+                click.echo(f"   Use --force to stop the existing service")
+                return 1
+            
+            click.echo(f"⚠️  Stopping existing service on port {port}...")
+            if service.stop_process_on_port(port, host):
+                click.echo(f"✅ Successfully stopped process on port {port}")
+                # Small delay to ensure port is released
+                await asyncio.sleep(1)
+            else:
+                click.echo(f"❌ Failed to stop process on port {port}")
+                return 1
 
-    click.echo(f"🚀 Starting shapi service for: {service_name}")
-    click.echo(f"📍 Script: {script_path}")
-    click.echo(f"🌐 Server: http://{host}:{port}")
-    click.echo(f"📖 Docs: http://{host}:{port}/docs")
-    click.echo(f"❤️  Health: http://{host}:{port}/health")
+        click.echo(f"🚀 Starting shapi service for: {service_name}")
+        click.echo(f"📍 Script: {script_path}")
+        click.echo(f"🌐 Server: http://{host}:{port}")
+        click.echo(f"📖 Docs: http://{host}:{port}/docs")
+        click.echo(f"❤️  Health: http://{host}:{port}/health")
+        click.echo("🛑 Press Ctrl+C to stop the service")
 
-    uvicorn.run(service.app, host=host, port=port, reload=reload)
+        # Run the service
+        config = uvicorn.Config(
+            service.app,
+            host=host,
+            port=port,
+            reload=reload,
+            log_level="info"
+        )
+        server = uvicorn.Server(config)
+        
+        try:
+            await server.serve()
+        except asyncio.CancelledError:
+            click.echo("\n👋 Shutting down gracefully...")
+            await server.shutdown()
+            
+    except Exception as e:
+        click.echo(f"❌ Error: {str(e)}", err=True)
+        return 1
 
 
 @main.command()

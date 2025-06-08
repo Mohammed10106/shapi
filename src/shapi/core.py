@@ -7,13 +7,16 @@ import subprocess
 import asyncio
 import json
 import logging
-from typing import Dict, Any, Optional, List
+import socket
+import time
+import signal
+from typing import Dict, Any, Optional, List, Tuple
 from pathlib import Path
 from dataclasses import dataclass
 from enum import Enum
 
 import psutil
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -54,16 +57,66 @@ class ScriptResponse(BaseModel):
 class ShapiService:
     """Main service class for managing shell scripts as APIs."""
 
-    def __init__(self, script_path: str, script_name: str):
+    def __init__(self, script_path: str, script_name: str, host: str = "0.0.0.0", port: int = 8000):
         self.script_path = Path(script_path)
         self.script_name = script_name
+        self.host = host
+        self.port = port
         self.app = FastAPI(
             title=f"Shapi Service - {script_name}",
             description=f"API wrapper for {script_name} script",
             version="0.2.0",
         )
         self.running_processes: Dict[str, subprocess.Popen] = {}
+        self._stop_event = asyncio.Event()
         self._setup_routes()
+        
+    @staticmethod
+    def is_port_in_use(port: int, host: str = '0.0.0.0') -> Tuple[bool, int]:
+        """Check if a port is in use and return the PID of the process using it."""
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind((host, port))
+                return False, -1
+            except OSError as e:
+                if e.errno == 98:  # Port already in use
+                    # Try to find the process using the port
+                    try:
+                        for conn in psutil.net_connections():
+                            if conn.status == 'LISTEN' and conn.laddr.port == port:
+                                return True, conn.pid
+                    except Exception:
+                        pass
+                return True, -1
+    
+    @staticmethod
+    def stop_process_on_port(port: int, host: str = '0.0.0.0') -> bool:
+        """Stop the process running on the specified port."""
+        is_used, pid = ShapiService.is_port_in_use(port, host)
+        if is_used and pid > 0:
+            try:
+                os.kill(pid, signal.SIGTERM)
+                # Wait for the process to terminate
+                for _ in range(10):  # 10 * 0.1s = 1s max wait
+                    try:
+                        os.kill(pid, 0)  # Check if process exists
+                        time.sleep(0.1)
+                    except (ProcessLookupError, PermissionError):
+                        break
+                return True
+            except (ProcessLookupError, PermissionError):
+                pass
+        return False
+    
+    async def ensure_port_available(self) -> None:
+        """Ensure the port is available, stop any process using it if necessary."""
+        is_used, pid = self.is_port_in_use(self.port, self.host)
+        if is_used:
+            logger.warning(f"Port {self.port} is in use by process {pid}, attempting to stop it...")
+            if self.stop_process_on_port(self.port, self.host):
+                logger.info(f"Successfully stopped process on port {self.port}")
+            else:
+                raise RuntimeError(f"Could not stop process on port {self.port}. Please stop it manually and try again.")
 
     def _setup_routes(self):
         """Setup FastAPI routes for the service."""
