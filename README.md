@@ -30,9 +30,7 @@
 - 🎯 **Daemon Mode**: Run services in the background
 - 🔄 **Service Discovery**: List and manage running services
 
-## Quick Start
-
-### Installation
+## 📦 Installation
 
 ```bash
 # Install using pip
@@ -44,7 +42,9 @@ cd shapi
 pip install -e .
 ```
 
-### Basic Usage
+## 🚀 Quick Start
+
+### Serve a Script
 
 ```bash
 # Serve a script directly
@@ -55,14 +55,47 @@ shapi serve ./examples/echo.sh --name echo-service --port 8000 --daemon
 
 # List running services
 shapi service list
-
-# Stop a service
-shapi service stop echo-service
 ```
 
-### Example Scripts
+### Manage Services
 
-Shapi comes with several example scripts that demonstrate its capabilities:
+```bash
+# List all running services
+shapi service list
+
+# Stop a service
+shapi service stop service-name
+
+# Restart a service
+shapi service restart service-name
+
+# Force stop if port is in use
+shapi serve ./script.sh --port 8000 --force
+```
+
+### Generate Service Structure
+
+```bash
+# Generate complete service structure with Docker and tests
+shapi generate /path/to/your/script.sh --name my-service
+
+# Navigate to the generated service
+cd my-service
+
+# Install dependencies and run
+pip install -r requirements.txt
+python main.py
+```
+
+## 📚 Documentation
+
+- [Examples](./examples/README.md) - Detailed documentation of example scripts
+- [API Reference](https://wronai.github.io/shapi/) - Complete API documentation
+- [Development Guide](./CONTRIBUTING.md) - How to contribute to ShAPI
+
+## 🔍 Examples
+
+ShAPI comes with several example scripts that demonstrate its capabilities:
 
 1. `ls.sh` - List directory contents
 2. `ps.sh` - Show running processes
@@ -72,60 +105,9 @@ Shapi comes with several example scripts that demonstrate its capabilities:
 6. `date.sh` - Show current date/time with formatting
 7. `echo.sh` - Echo back input text
 
-You can run these examples using:
+See the [examples documentation](./examples/README.md) for detailed usage and API examples.
 
-```bash
-# Start all example services (runs on ports 8001-8007)
-make start-examples
-
-# Verify examples are working
-make check-examples
-
-# List running example services
-make list-examples
-
-# Stop all example services
-make stop-examples
-
-# Start a specific example
-make start-example EXAMPLE=ls PORT=8001
-```
-
-### Service Management
-
-Shapi provides a comprehensive service management system:
-
-```bash
-# List all running services
-shapi service list
-
-# Stop a running service
-shapi service stop service-name
-
-# Restart a service
-shapi service restart service-name
-
-# Force stop if port is in use
-shapi serve ./examples/echo.sh --port 8000 --force
-```
-
-### Generate Complete Service Structure
-
-```bash
-# Generate complete service structure with Docker and tests
-shapi generate /path/to/your/script.sh --name my-service
-
-# Navigate to the generated service
-cd my-service
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the service
-python main.py
-```
-
-### Generated Structure
+## 🛠️ Project Structure
 
 ```
 my-service/
@@ -133,11 +115,11 @@ my-service/
 ├── Dockerfile           # Container configuration
 ├── docker-compose.yml   # Multi-service setup
 ├── Makefile            # Build and deployment commands
-├── requirements.txt     # Python dependencies
+├── requirements.txt    # Python dependencies
 ├── test_service.py     # Test suite
-├── ansible/
-│   └── test.yml        # Infrastructure tests
-└── script.sh           # Your original script
+├── ansible/           # Infrastructure tests
+│   └── test.yml
+└── script.sh          # Your original script
 ```
 
 ## Usage Examples
