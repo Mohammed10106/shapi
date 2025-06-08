@@ -6,10 +6,10 @@ import os
 import signal
 import sys
 import time
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict, field, fields
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 import psutil
 
@@ -25,6 +25,12 @@ class ServiceInfo:
     script_path: str
     start_time: float = field(default_factory=time.time)
     log_file: Optional[str] = None
+    
+    def __post_init__(self):
+        """Handle any post-initialization processing."""
+        # Convert string paths to Path objects if needed
+        if isinstance(self.script_path, str):
+            self.script_path = Path(self.script_path)
 
     @property
     def uptime(self) -> str:
@@ -47,7 +53,14 @@ class ServiceInfo:
 
     def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization."""
-        data = asdict(self)
+        data = {}
+        for f in fields(self):
+            value = getattr(self, f.name)
+            # Convert Path objects to strings for JSON serialization
+            if isinstance(value, Path):
+                value = str(value)
+            data[f.name] = value
+        # Add computed fields
         data["status"] = self.status
         data["uptime"] = self.uptime
         return data
@@ -63,7 +76,13 @@ class ServiceManager:
     
     def _ensure_service_dir(self) -> None:
         """Ensure the service directory exists."""
-        self.service_file.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            service_dir = os.path.dirname(self.service_file)
+            if service_dir:  # Only create if there's a directory component
+                os.makedirs(service_dir, exist_ok=True, mode=0o755)
+        except Exception as e:
+            print(f"Error creating service directory: {e}", file=sys.stderr)
+            raise
     
     def _load_services(self) -> None:
         """Load services from the service file."""
@@ -76,14 +95,19 @@ class ServiceManager:
                 data = json.load(f)
                 for pid, service_data in data.items():
                     try:
+                        # Remove computed fields before creating the ServiceInfo
+                        service_data.pop('status', None)
+                        service_data.pop('uptime', None)
                         service = ServiceInfo(**service_data)
                         if service.status == "running":
                             self.services[int(pid)] = service
+                        else:
+                            print(f"Service {pid} is not running (status: {service.status})", file=sys.stderr)
                     except Exception as e:
                         print(f"Error loading service {pid}: {e}", file=sys.stderr)
             self._cleanup_stopped()
-        except json.JSONDecodeError:
-            print(f"Warning: Invalid JSON in service file: {self.service_file}", file=sys.stderr)
+        except json.JSONDecodeError as e:
+            print(f"Warning: Invalid JSON in service file {self.service_file}: {e}", file=sys.stderr)
         except Exception as e:
             print(f"Error loading services: {e}", file=sys.stderr)
     
@@ -120,10 +144,20 @@ class ServiceManager:
         if stopped_pids:
             self._save_services()
     
-    def register_service(self, service: ServiceInfo) -> None:
-        """Register a new service."""
-        self.services[service.pid] = service
-        self._save_services()
+    def register_service(self, service: ServiceInfo) -> bool:
+        """Register a new service.
+        
+        Returns:
+            bool: True if registration was successful, False otherwise
+        """
+        try:
+            self.services[service.pid] = service
+            self._save_services()
+            print(f"Registered service: {service.name} (PID: {service.pid})", file=sys.stderr)
+            return True
+        except Exception as e:
+            print(f"Error registering service: {e}", file=sys.stderr)
+            return False
     
     def unregister_service(self, pid: int) -> bool:
         """Unregister a service by PID."""
