@@ -60,7 +60,7 @@ class ShapiService:
         self.app = FastAPI(
             title=f"Shapi Service - {script_name}",
             description=f"API wrapper for {script_name} script",
-            version="0.2.0"
+            version="0.2.0",
         )
         self.running_processes: Dict[str, subprocess.Popen] = {}
         self._setup_routes()
@@ -76,7 +76,7 @@ class ShapiService:
                 "status": "healthy" if script_exists else "unhealthy",
                 "script_name": self.script_name,
                 "script_exists": script_exists,
-                "script_path": str(self.script_path)
+                "script_path": str(self.script_path),
             }
 
         @self.app.post("/run", response_model=ScriptResponse)
@@ -87,11 +87,13 @@ class ShapiService:
 
             if request.async_execution:
                 task_id = f"{self.script_name}_{asyncio.get_event_loop().time()}"
-                background_tasks.add_task(self._run_script_async, task_id, request.parameters)
+                background_tasks.add_task(
+                    self._run_script_async, task_id, request.parameters
+                )
                 return ScriptResponse(
                     status="started",
                     output=f"Script started asynchronously with task ID: {task_id}",
-                    execution_time=0.0
+                    execution_time=0.0,
                 )
             else:
                 return await self._run_script_sync(request.parameters)
@@ -114,22 +116,25 @@ class ShapiService:
                 "name": self.script_name,
                 "path": str(self.script_path),
                 "exists": self.script_path.exists(),
-                "size": self.script_path.stat().st_size if self.script_path.exists() else 0,
-                "executable": os.access(self.script_path, os.X_OK) if self.script_path.exists() else False
+                "size": self.script_path.stat().st_size
+                if self.script_path.exists()
+                else 0,
+                "executable": os.access(self.script_path, os.X_OK)
+                if self.script_path.exists()
+                else False,
             }
 
     async def _run_script_sync(self, parameters: Dict[str, Any]) -> ScriptResponse:
         """Run script synchronously."""
         import time
+
         start_time = time.time()
 
         try:
             cmd = self._build_command(parameters)
 
             process = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
             )
 
             stdout, stderr = await process.communicate()
@@ -140,7 +145,7 @@ class ShapiService:
                 output=stdout.decode(),
                 error=stderr.decode() if stderr else None,
                 execution_time=execution_time,
-                pid=process.pid
+                pid=process.pid,
             )
 
         except Exception as e:
@@ -148,14 +153,16 @@ class ShapiService:
                 status="failed",
                 output="",
                 error=str(e),
-                execution_time=time.time() - start_time
+                execution_time=time.time() - start_time,
             )
 
     async def _run_script_async(self, task_id: str, parameters: Dict[str, Any]):
         """Run script asynchronously."""
         try:
             cmd = self._build_command(parameters)
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
             self.running_processes[task_id] = process
 
             # Wait for completion and cleanup
@@ -180,4 +187,3 @@ class ShapiService:
                 cmd.extend([f"--{key}", str(value)])
 
         return cmd
-

@@ -1,91 +1,70 @@
-# shapi - TODO List
+# shapi - Project Roadmap
 
-## Core Functionality
-- [x] Basic converter framework
-- [x] PDF converter
-- [x] HTML converter
-- [x] XML converter
-- [x] JSON converter
-- [x] DOCX converter
-- [x] EPUB converter
-- [x] OCR functionality
-- [x] Template system
-- [x] AI content generation
-- [ ] Bidirectional document-data conversion system
+## 🚀 High Priority
 
-## CLI & Interactive Features
-- [x] Basic CLI interface
-- [x] Interactive shell mode
-- [ ] Enhanced command completion
-- [ ] Progress tracking for long operations
-- [ ] Batch processing support
+### Core Functionality
+- [ ] Implement basic API endpoints for solution generation
+- [ ] Integrate with Ollama Mistral:7b for AI-powered generation
+- [ ] Create template system for solution scaffolding
+- [ ] Implement validation for generated solutions
+- [ ] Add support for different architecture patterns
 
-## Template System
-- [x] Base template handler
-- [x] PDF template support
-- [x] Invoice template example
-- [ ] Template gallery
-- [ ] Template validation
-- [ ] Template variables documentation
-- [ ] Bidirectional template support (document <-> data)
+### Documentation
+- [x] Fix MkDocs build issues
+- [ ] Complete API reference documentation
+- [ ] Add usage examples
+- [ ] Document configuration options
+- [ ] Create contribution guidelines
 
-## Documentation
-- [x] Basic README
-- [x] API documentation
-- [x] User guide
-- [x] Developer guide
-- [x] Example gallery
-- [ ] Interactive examples
-- [ ] Video tutorials
-- [ ] Cookbook
+## 📦 Medium Priority
 
-## Testing
-- [x] Unit tests
-- [x] Integration tests
-- [ ] Performance tests
-- [ ] Test coverage
-- [x] Ansible tests
-- [ ] Load testing
-- [ ] Cross-platform testing
+### Testing
+- [ ] Set up test framework (pytest)
+- [ ] Add unit tests for core functionality
+- [ ] Add integration tests
+- [ ] Implement CI/CD pipeline
+- [ ] Set up code coverage reporting
 
-## CI/CD & Deployment
-- [x] GitHub Actions workflow
-- [x] Automated testing
-- [x] Automated releases
-- [x] Docker support
-- [ ] Multi-arch Docker builds
-- [ ] Homebrew formula
-- [ ] PyPI package
-- [ ] Documentation deployment
+### Infrastructure
+- [ ] Docker Compose setup for local development
+- [ ] Kubernetes manifests for deployment
+- [ ] Terraform modules for cloud provisioning
+- [ ] Monitoring setup (Prometheus/Grafana)
+- [ ] Centralized logging (ELK/EFK stack)
 
-## Examples
-- [x] Basic usage
-- [x] Template processing
-- [x] Batch conversion
-- [x] Web API
-- [x] CLI tool
-- [x] Docker deployment
-- [ ] Kubernetes deployment
-- [ ] Advanced template examples
+## 🔄 Low Priority
 
-## Performance
-- [x] Caching
-- [x] Parallel processing
-- [ ] Memory optimization
-- [ ] Large file support
-- [ ] Streaming processing
-
-## Security
-- [x] Input validation
-- [ ] Sandboxing
-- [x] Dependency updates
-- [ ] Security audit
-- [ ] Rate limiting
+### Features
+- [ ] WebRTC integration
+- [ ] gRPC API support
+- [ ] CLI improvements
+- [ ] Plugin system for extensibility
 - [ ] Authentication/Authorization
 
-## Infrastructure
-- [ ] Docker Compose setup
-- [ ] Kubernetes manifests
-- [ ] Terraform modules
-- [ ] Monitoring setup
-- [ ] Logging infrastructure
+### Developer Experience
+- [ ] Pre-commit hooks
+- [ ] Code formatting (black, isort)
+- [ ] Linting (flake8, mypy)
+- [ ] Documentation generation
+- [ ] Dependency management
+
+## 🏗️ Project Setup
+- [ ] Set up virtual environment
+- [ ] Configure development dependencies
+- [ ] Create Makefile for common tasks
+- [ ] Set up version management
+- [ ] Configure logging
+
+## 📈 Performance
+- [ ] Benchmark solution generation
+- [ ] Optimize template processing
+- [ ] Implement caching layer
+- [ ] Profile memory usage
+- [ ] Optimize for large solutions
+
+## 🔒 Security
+- [ ] Input validation
+- [ ] Secure API endpoints
+- [ ] Secrets management
+- [ ] Rate limiting
+- [ ] Audit logging

@@ -30,12 +30,12 @@ class GrpcProtocol:
 
         # Add reflection service
         SERVICE_NAMES = (
-            health_pb2.DESCRIPTOR.services_by_name['Health'].full_name,
+            health_pb2.DESCRIPTOR.services_by_name["Health"].full_name,
             reflection.SERVICE_NAME,
         )
         reflection.enable_server_reflection(SERVICE_NAMES, self.server)
 
-        listen_addr = f'[::]:{self.port}'
+        listen_addr = f"[::]:{self.port}"
         self.server.add_insecure_port(listen_addr)
 
         await self.server.start()
@@ -45,4 +45,3 @@ class GrpcProtocol:
             await self.server.wait_for_termination()
         except KeyboardInterrupt:
             await self.server.stop(0)
-

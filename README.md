@@ -1,26 +1,31 @@
-# shapi
-from shell to api
+<div align="center">
+  <h1>✨ shapi</h1>
+  <p>Transform shell scripts into production-ready APIs with REST, WebRTC, and gRPC support</p>
+  
+  [![PyPI Version](https://img.shields.io/pypi/v/shapi?color=blue)](https://pypi.org/project/shapi/)
+  [![Python Versions](https://img.shields.io/pypi/pyversions/shapi)](https://pypi.org/project/shapi/)
+  [![License](https://img.shields.io/github/license/wronai/shapi)](https://github.com/wronai/shapi/blob/main/LICENSE)
+  [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+  [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://wronai.github.io/shapi/)
+  [![Tests](https://github.com/wronai/shapi/actions/workflows/tests.yml/badge.svg)](https://github.com/wronai/shapi/actions)
+  [![Codecov](https://codecov.io/gh/wronai/shapi/branch/main/graph/badge.svg)](https://codecov.io/gh/wronai/shapi)
 
+  [🚀 Quick Start](#-quick-start) |
+  [📖 Documentation](https://wronai.github.io/shapi/) |
+  [💡 Examples](#-examples) |
+  [🤝 Contributing](#-contributing) |
+  [📄 License](#-license)
+</div>
 
-# shapi - Shell to API Service Generator
-
-Transform your bash scripts into production-ready APIs with REST, WebRTC, and gRPC support.
-
-
-
-
-# shapi - Shell to API Service Generator
-
-Transform your bash scripts into production-ready APIs with REST, WebRTC, and gRPC support.
-
-## Features
+## ✨ Features
 
 - 🚀 **Instant API Generation**: Convert any shell script into a REST API with a single command
-- 🐳 **Docker Ready**: Automatic Dockerfile and docker-compose.yml generation
+- 🤖 **AI-Powered**: Leverage local LLM (Mistral:7b) for intelligent API generation
+- 🐳 **Container Ready**: Automatic Dockerfile and docker-compose.yml generation
+- 🌐 **Multi-Protocol**: Support for REST, WebRTC, and gRPC APIs
 - 🧪 **Testing Included**: Generated test suites and Ansible playbooks
-- 🔄 **Multiple Protocols**: Support for REST, WebRTC, and gRPC
-- 📊 **Health Monitoring**: Built-in health checks and status endpoints
-- 🔧 **Production Ready**: Makefile, monitoring, and deployment configurations
+- 📊 **Monitoring**: Built-in health checks and status endpoints
+- 🔧 **Production Ready**: Complete with Makefile, monitoring, and deployment configs
 
 ## Quick Start
 

@@ -35,7 +35,8 @@ def generate(script_path: str, name: Optional[str], output: str, config: Optiona
     service_config = {}
     if config:
         import yaml
-        with open(config, 'r') as f:
+
+        with open(config, "r") as f:
             service_config = yaml.safe_load(f)
 
     generator = ServiceGenerator(output)
@@ -75,12 +76,7 @@ def serve(script_path: str, name: Optional[str], host: str, port: int, reload: b
     click.echo(f"📖 Docs: http://{host}:{port}/docs")
     click.echo(f"❤️  Health: http://{host}:{port}/health")
 
-    uvicorn.run(
-        service.app,
-        host=host,
-        port=port,
-        reload=reload
-    )
+    uvicorn.run(service.app, host=host, port=port, reload=reload)
 
 
 @main.command()
@@ -98,9 +94,9 @@ def test(service_dir: str):
     import subprocess
 
     click.echo("🧪 Running service tests...")
-    result = subprocess.run([
-        sys.executable, "-m", "pytest", str(test_file), "-v"
-    ], cwd=service_path)
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", str(test_file), "-v"], cwd=service_path
+    )
 
     if result.returncode == 0:
         click.echo("✅ All tests passed!")
@@ -128,9 +124,9 @@ def build(service_dir: str):
 
     click.echo(f"🐳 Building Docker image: {image_name}")
 
-    result = subprocess.run([
-        "docker", "build", "-t", image_name, "."
-    ], cwd=service_path)
+    result = subprocess.run(
+        ["docker", "build", "-t", image_name, "."], cwd=service_path
+    )
 
     if result.returncode == 0:
         click.echo(f"✅ Docker image built successfully: {image_name}")

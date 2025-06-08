@@ -42,8 +42,7 @@ def main():
 if __name__ == "__main__":
     main()
 ''',
-
-    "Dockerfile.j2": '''FROM python:3.11-slim
+    "Dockerfile.j2": """FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -72,9 +71,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \\
 
 # Run the service
 CMD ["python", "main.py"]
-''',
-
-    "Makefile.j2": '''# Makefile for {{ script_name }} service
+""",
+    "Makefile.j2": """# Makefile for {{ script_name }} service
 
 .PHONY: help install test run build clean docker-build docker-run
 
@@ -116,8 +114,7 @@ logs: ## Show service logs
 
 stop: ## Stop the service
 	docker-compose down
-''',
-
+""",
     "test.py.j2": '''#!/usr/bin/env python3
 """
 Tests for {{ script_name }} service
@@ -202,8 +199,7 @@ def test_openapi_json(client):
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
 ''',
-
-    "requirements.txt.j2": '''fastapi>=0.104.0
+    "requirements.txt.j2": """fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 pydantic>=2.0.0
 aiofiles>=23.0.0
@@ -211,9 +207,8 @@ python-multipart>=0.0.6
 psutil>=5.9.0
 pytest>=7.4.0
 httpx>=0.24.0
-''',
-
-    "docker-compose.yml.j2": '''version: '3.8'
+""",
+    "docker-compose.yml.j2": """version: '3.8'
 
 services:
   {{ script_name }}:
@@ -241,9 +236,8 @@ services:
     depends_on:
       - {{ script_name }}
     restart: unless-stopped
-''',
-
-    "ansible_test.yml.j2": '''---
+""",
+    "ansible_test.yml.j2": """---
 - name: Test {{ script_name }} service deployment
   hosts: localhost
   connection: local
@@ -314,7 +308,7 @@ services:
         name: "{{ service_name }}-test"
         state: absent
       when: cleanup | default(true)
-'''
+""",
 }
 
 
@@ -322,5 +316,3 @@ def get_template_content(template_name: str):
     """Get template content by name."""
     env = Environment(loader=StringTemplateLoader(TEMPLATES))
     return env.get_template(template_name)
-
-

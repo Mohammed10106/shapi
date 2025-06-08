@@ -53,26 +53,28 @@ class WebRTCProtocol:
             await pc.close()
             self.connections.discard(pc)
 
-    async def handle_signaling(self, pc: RTCPeerConnection, websocket, data: Dict[str, Any]):
+    async def handle_signaling(
+        self, pc: RTCPeerConnection, websocket, data: Dict[str, Any]
+    ):
         """Handle WebRTC signaling messages."""
         if data.get("type") == "offer":
-            await pc.setRemoteDescription(RTCSessionDescription(
-                sdp=data["sdp"],
-                type=data["type"]
-            ))
+            await pc.setRemoteDescription(
+                RTCSessionDescription(sdp=data["sdp"], type=data["type"])
+            )
 
             answer = await pc.createAnswer()
             await pc.setLocalDescription(answer)
 
-            await websocket.send(json.dumps({
-                "type": "answer",
-                "sdp": pc.localDescription.sdp
-            }))
+            await websocket.send(
+                json.dumps({"type": "answer", "sdp": pc.localDescription.sdp})
+            )
 
         elif data.get("type") == "ice-candidate":
             await pc.addIceCandidate(data["candidate"])
 
-    async def handle_script_request(self, channel: RTCDataChannel, data: Dict[str, Any]):
+    async def handle_script_request(
+        self, channel: RTCDataChannel, data: Dict[str, Any]
+    ):
         """Handle script execution request via WebRTC."""
         try:
             script_name = data.get("script")
@@ -82,16 +84,13 @@ class WebRTCProtocol:
             result = {
                 "status": "success",
                 "output": f"Executed {script_name} with {parameters}",
-                "timestamp": asyncio.get_event_loop().time()
+                "timestamp": asyncio.get_event_loop().time(),
             }
 
             channel.send(json.dumps(result))
 
         except Exception as e:
-            error_response = {
-                "status": "error",
-                "message": str(e)
-            }
+            error_response = {"status": "error", "message": str(e)}
             channel.send(json.dumps(error_response))
 
     async def start_server(self):
@@ -99,9 +98,7 @@ class WebRTCProtocol:
         logger.info(f"Starting WebRTC signaling server on {self.host}:{self.port}")
 
         async with websockets.serve(
-                self.handle_websocket,
-                self.host,
-                self.port
+            self.handle_websocket, self.host, self.port
         ) as server:
             logger.info("WebRTC server started")
             await server.wait_closed()

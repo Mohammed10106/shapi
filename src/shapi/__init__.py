@@ -13,4 +13,3 @@ from .generator import ServiceGenerator
 from .cli import main
 
 __all__ = ["ShapiService", "ServiceGenerator", "main"]
-
